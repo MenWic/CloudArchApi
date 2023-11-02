@@ -20,7 +20,7 @@ app.use(cors(corsOptions));
 app.use(express.static(path.join(__dirname, './upload')));
 async function start() {
     try {
-        const db = await mongoose.connect('mongodb://localhost:27017/ecommersgt', {
+        const db = await mongoose.connect('mongodb://localhost:27017/cloudarch', {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             family: 4
