@@ -1,6 +1,7 @@
 const express = require('express');//iniciar express
 const mongoose = require('mongoose');//iniciar mongoose
 const usuarioRoutes = require('./routes/Usuario.routes');
+const archivoRoutes = require('./routes/Archivo.routes');
 const cors = require("cors");
 const path = require("path");
 const bodyParser = require('body-parser');
@@ -33,5 +34,6 @@ async function start() {
 }
 start();//llamamos la funcion
 app.use('/usuarios', usuarioRoutes);//las rutas para los usuarios seran leidas desde localost/usuario/
+app.use('/archivos', archivoRoutes)
 app.listen(3000);//exuchando por el pueto 3000
 
