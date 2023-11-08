@@ -1,4 +1,5 @@
 const Archivo = require('../models/Archivo');
+const Papelera = require('../models/Papelera');
 
 const crearArchivo = async (req, res) => {
     const _body = req.body;
@@ -98,25 +99,38 @@ const eliminarArchivo = async (req, res) => {
         });
         return;
     }
+    let jsonEliminacion = await eliminarArchivoFuntion(_body);
+    res.json(jsonEliminacion);
+}
 
+async function eliminarArchivoFuntion(archivo) {
     const eliminacion = await Archivo.deleteOne(
         {
-            _id: _body._id
+            _id: archivo._id
         }
     )
 
-    if (eliminacion) {
-        res.json({
+    //crear una nueva papelera a partir del body
+    const newPapelera = new Papelera({
+        carpeta_raiz_id: archivo.carpeta_raiz_id,
+        nombre: archivo.nombre,
+        extension: archivo.extension,
+        contenido: archivo.contenido,
+        usuario_propietario: archivo.usuario_propietario
+    });
+
+    const save_papelera = await newPapelera.save();
+
+    if (eliminacion && save_papelera) {
+        return {
             motivo: "Se elimino el archivo con exito.",
             respuesta: true//si fue mal entonces devolver false
-        });
-        return;
+        };
     } else {
-        res.json({
+        return {
             motivo: "No se elimino el archivo debido a un error inesperado",
             respuesta: false//si fue mal entonces devolver false
-        });
-        return;
+        };
     }
 }
 
@@ -164,6 +178,48 @@ const editarArchivo = async (req, res) => {
     }
 }
 
+const moverArchivo = async (req, res) => {
+    const _body = req.body;
+    if (!verificarArchivo(_body)) {
+        res.json({
+            motivo: "No se edito el archivo puesto que hay informacion incompleta o extension erronea.",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+
+    if (await verificarSiExisteOtroArchivoConMismoNombre(_body)) {
+        res.json({
+            motivo: "Ya existe un archivo con el mismo nombre",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+
+
+    const update = await Archivo.findByIdAndUpdate(
+        {
+            _id: _body._id
+        },
+        {
+            carpeta_raiz_id: _body.carpeta_raiz_id
+        });
+
+    if (update) {
+        res.json({
+            motivo: "Se movio el archivo con exito.",
+            respuesta: true//si fue mal entonces devolver false
+        });
+        return;
+    } else {
+        res.json({
+            motivo: "No se movio el archivo debido a un error inesperado",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+}
+
 const mostarArchivosDeCarpeta = async (req, res) => {
     const _body = req.query;
     const find = await Archivo.findOne(
@@ -173,7 +229,7 @@ const mostarArchivosDeCarpeta = async (req, res) => {
         }
     );
 
-    if (update) {
+    if (find) {
         res.json(find);
     } else {
         res.send([{}]);
@@ -237,5 +293,7 @@ module.exports = {
     editarArchivo: editarArchivo,
     copiarArchivo: copiarArchivo,
     eliminarArchivo: eliminarArchivo,
-    mostarArchivosDeCarpeta:mostarArchivosDeCarpeta
+    mostarArchivosDeCarpeta: mostarArchivosDeCarpeta,
+    moverArchivo: moverArchivo,
+    eliminarArchivoFuntion:eliminarArchivoFuntion,
 }
