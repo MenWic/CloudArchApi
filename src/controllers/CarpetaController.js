@@ -51,8 +51,59 @@ const eliminarCarpeta = async (req, res) => {
     return;
 }
 
-async function eliminarCarpetaRecursiva(carpeta) {
+const copiarCarpeta = async (req, res) => {
+    const _body = req.body;
+    _body.nombre = _body.nombre + "_copia";
+    let respuesta = await copiarRecursivo(_body, _body.carpeta_raiz_id);
+    res.json({
+        respuesta: respuesta//si fue mal entonces devolver false
+    });
+    return;
+}
 
+async function copiarRecursivo(carpeta, raiz) {
+    try {
+
+        //crear la carpeta nueva
+        const newCarpta = new Carpeta({
+            carpeta_raiz_id: raiz,
+            nombre: carpeta.nombre,
+            usuario_propietario: carpeta.usuario_propietario
+        });
+
+        //guardar la carpeta copia
+        let save = newCarpta.save();
+
+        //traemos los archivos hijos de la carpta
+        let archivosHijos = await Archivo.find({ carpeta_raiz_id: carpeta._id });
+        //cada uno de los rachivos hijos copiarlos
+        for (let archivos of archivosHijos) {
+
+            //crear un nuevo Articulo a partir del archivo hijo
+            const newArchivo = new Archivo({
+                carpeta_raiz_id: save._id,
+                nombre: archivos.nombre,
+                extension: archivos.extension,
+                contenido: archivos.contenido,
+                usuario_propietario: archivos.usuario_propietario
+            });
+
+            //mandamos a guardar el nuevo Articulo
+            const insert = await newArchivo.save();
+        }
+
+        let carpetasHijas = await Carpeta.find({ carpeta_raiz_id: carpeta._id });
+        for (let carpetas of carpetasHijas) {
+            return await copiarRecursivo(carpetas, save._id);
+        }
+        return true;
+    } catch (error) {
+        console.error(error);
+        return false; // Manejar el error según sea necesario
+    }
+}
+
+async function eliminarCarpetaRecursiva(carpeta) {
     try {
 
         //traemos los archivos hijos de la carpta
@@ -141,5 +192,6 @@ function verificarCarpeta(archivo) {
 module.exports = {
     crearCarpeta: crearCarpeta,
     eliminarCarpeta: eliminarCarpeta,
-    mostarCarpetasDeCarpeta: mostarCarpetasDeCarpeta
+    mostarCarpetasDeCarpeta: mostarCarpetasDeCarpeta,
+    copiarCarpeta: copiarCarpeta
 }
