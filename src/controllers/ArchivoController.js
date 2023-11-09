@@ -178,6 +178,13 @@ const editarArchivo = async (req, res) => {
     }
 }
 
+/**
+ * Enviar _id del archivo a editar junto con carpeta_raiz_id con la ruta nueva
+
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 const moverArchivo = async (req, res) => {
     const _body = req.body;
     if (!verificarArchivo(_body)) {

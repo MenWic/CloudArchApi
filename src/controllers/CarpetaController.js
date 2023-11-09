@@ -61,6 +61,50 @@ const copiarCarpeta = async (req, res) => {
     return;
 }
 
+/**
+ * Enviar _id del archivo a editar junto con carpeta_raiz_id con la ruta nueva
+
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
+const moverCarpeta = async (req, res) => {
+    const _body = req.body;
+
+
+    if (await verificarSiExisteOtraCarpetaConMismoNombre(_body)) {
+        res.json({
+            motivo: "Ya existe otra carpeta con el mismo nombre",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+
+    const update = await Archivo.findByIdAndUpdate(
+        {
+            _id: _body._id
+        },
+        {
+            carpeta_raiz_id: _body.carpeta_raiz_id
+        });
+
+    if (update) {
+        res.json({
+            motivo: "Se movio el archivo con exito.",
+            respuesta: true//si fue mal entonces devolver false
+        });
+        return;
+    } else {
+        res.json({
+            motivo: "No se movio el archivo debido a un error inesperado",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+}
+
+
+
 async function copiarRecursivo(carpeta, raiz) {
     try {
 
@@ -72,8 +116,8 @@ async function copiarRecursivo(carpeta, raiz) {
         });
 
         //guardar la carpeta copia
-        let save = newCarpta.save();
-
+        let save = await newCarpta.save();
+        console.log("Se guardo " + save);
         //traemos los archivos hijos de la carpta
         let archivosHijos = await Archivo.find({ carpeta_raiz_id: carpeta._id });
         //cada uno de los rachivos hijos copiarlos
@@ -193,5 +237,6 @@ module.exports = {
     crearCarpeta: crearCarpeta,
     eliminarCarpeta: eliminarCarpeta,
     mostarCarpetasDeCarpeta: mostarCarpetasDeCarpeta,
-    copiarCarpeta: copiarCarpeta
+    copiarCarpeta: copiarCarpeta,
+    moverCarpeta: moverCarpeta
 }
