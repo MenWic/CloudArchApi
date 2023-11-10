@@ -3,6 +3,9 @@ const mongoose = require('mongoose');//iniciar mongoose
 const usuarioRoutes = require('./routes/Usuario.routes');
 const archivoRoutes = require('./routes/Archivo.routes');
 const carpetaRoutes = require('./routes/Carpeta.routes');
+const papeleraRoutes = require('./routes/Papelera.routes');
+const compartidosRoutes = require('./routes/Compartidos.routes');
+
 const cors = require("cors");
 const path = require("path");
 const bodyParser = require('body-parser');
@@ -36,6 +39,8 @@ async function start() {
 start();//llamamos la funcion
 app.use('/usuarios', usuarioRoutes);//las rutas para los usuarios seran leidas desde localost/usuario/
 app.use('/archivos', archivoRoutes);
-app.use('/carpetas', carpetaRoutes)
+app.use('/carpetas', carpetaRoutes);
+app.use('/papelera', papeleraRoutes);
+app.use('/compartidos', compartidosRoutes);
 app.listen(3000);//exuchando por el pueto 3000
 

@@ -2,6 +2,7 @@ const Carpeta = require('../models/Carpeta');
 const Archivo = require('../models/Archivo');
 const PapeleraCarpeta = require('../models/PapeleraCarpeta');
 const ArchivosController = require('../controllers/ArchivoController')
+
 const crearCarpeta = async (req, res) => {
     const _body = req.body;
     if (!verificarCarpeta(_body)) {
@@ -70,8 +71,6 @@ const copiarCarpeta = async (req, res) => {
  */
 const moverCarpeta = async (req, res) => {
     const _body = req.body;
-
-
     if (await verificarSiExisteOtraCarpetaConMismoNombre(_body)) {
         res.json({
             motivo: "Ya existe otra carpeta con el mismo nombre",
@@ -80,23 +79,24 @@ const moverCarpeta = async (req, res) => {
         return;
     }
 
-    const update = await Archivo.findByIdAndUpdate(
+    const update = await Carpeta.findByIdAndUpdate(
         {
             _id: _body._id
         },
         {
             carpeta_raiz_id: _body.carpeta_raiz_id
-        });
+        }
+    );
 
     if (update) {
         res.json({
-            motivo: "Se movio el archivo con exito.",
+            motivo: "Se movio la carpeta con exito.",
             respuesta: true//si fue mal entonces devolver false
         });
         return;
     } else {
         res.json({
-            motivo: "No se movio el archivo debido a un error inesperado",
+            motivo: "No se movio la carpeta debido a un error inesperado",
             respuesta: false//si fue mal entonces devolver false
         });
         return;
@@ -156,6 +156,7 @@ async function eliminarCarpetaRecursiva(carpeta) {
         for (let archivos of archivosHijos) {
             ArchivosController.eliminarArchivoFuntion(archivos);
         }
+        /*
         //eliminamos la carpeta y la adjuntamos a la papelera de carpetas
         let eliminacionCarpteta = await Carpeta.deleteOne({ _id: carpeta._id });
         //creamos la nueva papelera de carpeta y la guardamos
@@ -165,7 +166,7 @@ async function eliminarCarpetaRecursiva(carpeta) {
             usuario_propietario: carpeta.usuario_propietario
         });
         let insertPapelera = await papelera.save();
-
+        */
         let carpetasHijas = await Carpeta.find({ carpeta_raiz_id: carpeta._id });
         for (let carpetas of carpetasHijas) {
             return await eliminarCarpetaRecursiva(carpetas);
@@ -174,6 +175,25 @@ async function eliminarCarpetaRecursiva(carpeta) {
     } catch (error) {
         console.error(error);
         return false; // Manejar el error según sea necesario
+    }
+}
+
+/**
+ * Busca la carpeta por el atributo id de la query
+ * @param {*} req 
+ * @param {*} res 
+ */
+const traerCarpetaPorId = async (req, res) => {
+    const _body = req.query;
+    const find = await Carpeta.findOne(
+        {
+            _id: _body.id
+        }
+    );
+    if (find) {
+        res.json(find);
+    } else {
+        res.send([{}]);
     }
 }
 
@@ -238,5 +258,6 @@ module.exports = {
     eliminarCarpeta: eliminarCarpeta,
     mostarCarpetasDeCarpeta: mostarCarpetasDeCarpeta,
     copiarCarpeta: copiarCarpeta,
-    moverCarpeta: moverCarpeta
+    moverCarpeta: moverCarpeta,
+    traerCarpetaPorId: traerCarpetaPorId
 }

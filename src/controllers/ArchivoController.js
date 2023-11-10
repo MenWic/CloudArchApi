@@ -1,5 +1,7 @@
 const Archivo = require('../models/Archivo');
 const Papelera = require('../models/Papelera');
+const Compartido = require('../models/Compartidos');
+const UsuarioController = require('../controllers/UsuarioController');
 
 const crearArchivo = async (req, res) => {
     const _body = req.body;
@@ -227,6 +229,27 @@ const moverArchivo = async (req, res) => {
     }
 }
 
+/**
+ * Busca una carpeta por el atributo id de la query
+ * @param {*} req 
+ * @param {*} res 
+ */
+const traerArchivoPorId  = async (req, res) => {
+    const _body = req.query;
+    const find = await Archivo.findOne(
+        {
+            _id: _body.id,
+        }
+    );
+
+    if (find) {
+        res.json(find);
+    } else {
+        res.send([{}]);
+    }
+}
+
+
 const mostarArchivosDeCarpeta = async (req, res) => {
     const _body = req.query;
     const find = await Archivo.findOne(
@@ -240,6 +263,45 @@ const mostarArchivosDeCarpeta = async (req, res) => {
         res.json(find);
     } else {
         res.send([{}]);
+    }
+}
+
+
+const compartirArchivo = async (req, res) => {
+    const _body = req.body;
+
+    //verificamos que el usuario existe
+    if (!UsuarioController.existeUsuario(_body_usuario_receptor)) {
+        res.json({
+            motivo: "El usuario receptor no existe.",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+    //crear un nuevo Articulo a partir del body
+    const newCompartido = new Compartido({
+        nombre: _body.nombre,
+        extension: _body.extension,
+        contenido: _body.contenido,
+        usuario_que_compartio: _body.usuario_que_compartio,
+        usuario_receptor: _body_usuario_receptor
+    });
+
+    //mandamos a guardar el nuevo Articulo
+    const insert = await newCompartido.save();
+
+    if (insert) {
+        res.json({
+            motivo: "Se guardo el archivo con exito.",
+            respuesta: true//si fue mal entonces devolver false
+        });
+        return;
+    } else {
+        res.json({
+            motivo: "No se inserto el archivo debido a un error inesperado",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
     }
 }
 
@@ -302,5 +364,7 @@ module.exports = {
     eliminarArchivo: eliminarArchivo,
     mostarArchivosDeCarpeta: mostarArchivosDeCarpeta,
     moverArchivo: moverArchivo,
-    eliminarArchivoFuntion:eliminarArchivoFuntion,
+    eliminarArchivoFuntion: eliminarArchivoFuntion,
+    compartirArchivo: compartirArchivo,
+    traerArchivoPorId:traerArchivoPorId
 }

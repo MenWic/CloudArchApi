@@ -49,6 +49,37 @@ const crearUsuario = async (req, res) => {
     }
 }
 
+/**
+ * Busca al usuario por medio del atributo nombreUsuario de la llamada get
+ */
+const buscarUsuarioPorNombre = async (req, res) => {
+    const _body = req.query;
+    const usuarioEncontrado = await Usuario.findOne(
+        { correoElectronico: _body.nombreUsuario}
+    );
+
+    if (usuarioEncontrado) {
+        res.json(usuarioEncontrado);
+    }
+    return res.json({});
+}
+
+/**
+ * 
+ * @param {*} usuario es el correo electronico o el nombre de usuario por el cual se buscara
+ */
+async function existeUsuario(usuario) {
+    const usuarioEncontrado = await Usuario.findOne(
+        { correoElectronico: usuario }
+    );
+
+    if (usuarioEncontrado) {
+        return true;
+    }
+    return false;
+
+}
+
 function verificarUsuario(correoElectronico, password) {
     if (correoElectronico == null
         || password == null
@@ -62,4 +93,6 @@ function verificarUsuario(correoElectronico, password) {
 module.exports = {
     login: login,
     crearUsuario: crearUsuario,
+    existeUsuario: existeUsuario,
+    buscarUsuarioPorNombre:buscarUsuarioPorNombre
 }
