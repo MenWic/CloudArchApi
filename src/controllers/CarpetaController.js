@@ -156,7 +156,7 @@ async function eliminarCarpetaRecursiva(carpeta) {
         for (let archivos of archivosHijos) {
             ArchivosController.eliminarArchivoFuntion(archivos);
         }
-        /*
+        
         //eliminamos la carpeta y la adjuntamos a la papelera de carpetas
         let eliminacionCarpteta = await Carpeta.deleteOne({ _id: carpeta._id });
         //creamos la nueva papelera de carpeta y la guardamos
@@ -166,7 +166,7 @@ async function eliminarCarpetaRecursiva(carpeta) {
             usuario_propietario: carpeta.usuario_propietario
         });
         let insertPapelera = await papelera.save();
-        */
+        
         let carpetasHijas = await Carpeta.find({ carpeta_raiz_id: carpeta._id });
         for (let carpetas of carpetasHijas) {
             return await eliminarCarpetaRecursiva(carpetas);
@@ -200,7 +200,7 @@ const traerCarpetaPorId = async (req, res) => {
 
 const mostarCarpetasDeCarpeta = async (req, res) => {
     const _body = req.query;
-    const find = await Carpeta.findOne(
+    const find = await Carpeta.find(
         {
             carpeta_raiz_id: _body._id,
             usuario_propietario: _body.usuario_propietario

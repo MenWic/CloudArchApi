@@ -234,25 +234,29 @@ const moverArchivo = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
-const traerArchivoPorId  = async (req, res) => {
+const traerArchivoPorId = async (req, res) => {
     const _body = req.query;
-    const find = await Archivo.findOne(
-        {
-            _id: _body.id,
-        }
-    );
+    try {
+        const find = await Archivo.findOne(
+            {
+                _id: mongoose.Types.ObjectId(_body.id),
+            }
+        );
 
-    if (find) {
-        res.json(find);
-    } else {
-        res.send([{}]);
+        if (find) {
+            res.json(find);
+        } else {
+            res.send({});
+        }
+    } catch (error) {
     }
+
 }
 
 
 const mostarArchivosDeCarpeta = async (req, res) => {
     const _body = req.query;
-    const find = await Archivo.findOne(
+    const find = await Archivo.find(
         {
             carpeta_raiz_id: _body._id,
             usuario_propietario: _body.usuario_propietario
@@ -366,5 +370,5 @@ module.exports = {
     moverArchivo: moverArchivo,
     eliminarArchivoFuntion: eliminarArchivoFuntion,
     compartirArchivo: compartirArchivo,
-    traerArchivoPorId:traerArchivoPorId
+    traerArchivoPorId: traerArchivoPorId
 }

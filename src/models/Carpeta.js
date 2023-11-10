@@ -6,7 +6,7 @@ const model = mongoose.model;
 
 const CarpetaSchema = new Schema(
     {
-        carpeta_raiz_id: mongoose.Types.ObjectId,
+        carpeta_raiz_id: String,
         nombre: String,
         usuario_propietario: String
     }
