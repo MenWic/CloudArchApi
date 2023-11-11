@@ -253,7 +253,7 @@ const traerArchivoPorId = async (req, res) => {
         if (find) {
             res.json(find);
         } else {
-            res.send({});
+            res.send(null);
         }
     } catch (error) {
     }
