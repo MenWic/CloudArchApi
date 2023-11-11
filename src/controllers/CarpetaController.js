@@ -44,7 +44,7 @@ const crearCarpeta = async (req, res) => {
 
 const eliminarCarpeta = async (req, res) => {
     const _body = req.body;
-    console.log(_body);
+    console.log(_body)
     let respuesta = await eliminarCarpetaRecursiva(_body);
     res.json({
         respuesta: respuesta//si fue mal entonces devolver false
@@ -55,6 +55,13 @@ const eliminarCarpeta = async (req, res) => {
 const copiarCarpeta = async (req, res) => {
     const _body = req.body;
     _body.nombre = _body.nombre + "_copia";
+    if (await verificarSiExisteOtraCarpetaConMismoNombre(_body)) {
+        res.json({
+            motivo: "Ya existe una carpeta con el mismo nombre",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
     let respuesta = await copiarRecursivo(_body, _body.carpeta_raiz_id);
     res.json({
         respuesta: respuesta//si fue mal entonces devolver false
@@ -117,7 +124,6 @@ async function copiarRecursivo(carpeta, raiz) {
 
         //guardar la carpeta copia
         let save = await newCarpta.save();
-        console.log("Se guardo " + save);
         //traemos los archivos hijos de la carpta
         let archivosHijos = await Archivo.find({ carpeta_raiz_id: carpeta._id });
         //cada uno de los rachivos hijos copiarlos
@@ -138,11 +144,10 @@ async function copiarRecursivo(carpeta, raiz) {
 
         let carpetasHijas = await Carpeta.find({ carpeta_raiz_id: carpeta._id });
         for (let carpetas of carpetasHijas) {
-            return await copiarRecursivo(carpetas, save._id);
+            await copiarRecursivo(carpetas, save._id);
         }
         return true;
     } catch (error) {
-        console.error(error);
         return false; // Manejar el error según sea necesario
     }
 }
@@ -168,12 +173,12 @@ async function eliminarCarpetaRecursiva(carpeta) {
         let insertPapelera = await papelera.save();
         
         let carpetasHijas = await Carpeta.find({ carpeta_raiz_id: carpeta._id });
+         console.log("Hijas" , carpetasHijas)
         for (let carpetas of carpetasHijas) {
-            return await eliminarCarpetaRecursiva(carpetas);
+            await eliminarCarpetaRecursiva(carpetas);
         }
         return true;
     } catch (error) {
-        console.error(error);
         return false; // Manejar el error según sea necesario
     }
 }

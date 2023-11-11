@@ -5,7 +5,7 @@ const carpetaController = require("../controllers/CarpetaController");
 const router = express.Router();
 
 router.post('/crearCarpeta', carpetaController.crearCarpeta);//definiendo rutas
-router.delete('/eliminarCarpeta', carpetaController.eliminarCarpeta);//definiendo rutas
+router.post('/eliminarCarpeta', carpetaController.eliminarCarpeta);//definiendo rutas
 router.post('/copiarCarpeta', carpetaController.copiarCarpeta);
 router.put('/moverCarpeta', carpetaController.moverCarpeta);
 router.get('/traerCarpetaPorId', carpetaController.traerCarpetaPorId);
