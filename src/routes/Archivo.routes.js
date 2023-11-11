@@ -9,6 +9,7 @@ router.put('/editarArchivo', archivoController.editarArchivo);//definiendo rutas
 router.post('/copiarArchivo', archivoController.copiarArchivo);//definiendo rutas
 router.post('/moverArchivo', archivoController.moverArchivo);//definiendo rutas
 router.post('/eliminarArchivo', archivoController.eliminarArchivo);//definiendo rutas
+router.get('/traerArchivoPorId', archivoController.traerArchivoPorId);//definiendo rutas
 router.get('/mostarArchivosDeCarpeta', archivoController.mostarArchivosDeCarpeta);//definiendo rutas
 
 module.exports = router;//exporar el routers

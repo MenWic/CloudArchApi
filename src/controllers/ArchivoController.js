@@ -246,7 +246,7 @@ const traerArchivoPorId = async (req, res) => {
     try {
         const find = await Archivo.findOne(
             {
-                _id: mongoose.Types.ObjectId(_body.id),
+                _id: _body.id,
             }
         );
 
