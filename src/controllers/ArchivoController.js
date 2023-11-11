@@ -170,6 +170,7 @@ const editarArchivo = async (req, res) => {
         {
             nombre: _body.nombre,
             contenido: _body.contenido,
+            extension: _body.extension,
         });
 
     if (update) {
