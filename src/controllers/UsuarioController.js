@@ -72,8 +72,7 @@ async function existeUsuario(usuario) {
     const usuarioEncontrado = await Usuario.findOne(
         { correoElectronico: usuario }
     );
-
-    if (usuarioEncontrado) {
+    if (usuarioEncontrado !== null) {
         return true;
     }
     return false;

@@ -1,4 +1,44 @@
-const Compartidos = require('../models/Papelera');
+const Compartido = require('../models/Compartidos');
+const UsuarioController = require('../controllers/UsuarioController');
+
+const compartirArchivo = async (req, res) => {
+    const _body = req.body;
+
+    //verificamos que el usuario existe
+    if (!await UsuarioController.existeUsuario(_body.usuario_receptor)) {
+        res.json({
+            motivo: "El usuario receptor no existe.",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+    //crear un nuevo Articulo a partir del body
+    const newCompartido = new Compartido({
+        nombre: _body.nombre,
+        extension: _body.extension,
+        contenido: _body.contenido,
+        usuario_que_compartio: _body.usuario_que_compartio,
+        usuario_receptor: _body.usuario_receptor
+    });
+
+    //mandamos a guardar el nuevo Articulo
+    const insert = await newCompartido.save();
+
+    if (insert) {
+        res.json({
+            motivo: "Se compartio el archivo con exito.",
+            respuesta: true//si fue mal entonces devolver false
+        });
+        return;
+    } else {
+        res.json({
+            motivo: "No se compartio el archivo debido a un error inesperado",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+}
+
 
 /**
  * @param {*} req 
@@ -9,7 +49,7 @@ const verCompartidosDeUsuario = async (req, res) => {
     
     const _body = req.query;
 
-    const compartidosDeUsuario = await Compartidos.find(
+    const compartidosDeUsuario = await Compartido.find(
         {
             usuario_receptor: _body.usuario
         }
@@ -30,7 +70,7 @@ const verCompartidosDeUsuario = async (req, res) => {
  */
 const traerCompartidoPorId = async (req, res) => {
     const _body = req.query;
-    const find = await Compartidos.findOne(
+    const find = await Compartido.findOne(
         {
             _id: _body.id,
         }
@@ -45,7 +85,7 @@ const traerCompartidoPorId = async (req, res) => {
 
 const eliminarDeCompartidos = async (req, res) => {
     const _body = req.body;
-    const eliminacion = await Compartidos.deleteOne(
+    const eliminacion = await Compartido.deleteOne(
         {
             _id: _body._id
         }
@@ -65,6 +105,7 @@ const eliminarDeCompartidos = async (req, res) => {
 }
 
 module.exports = {
+    compartirArchivo:compartirArchivo,
     verCompartidosDeUsuario: verCompartidosDeUsuario,
     traerCompartidoPorId: traerCompartidoPorId,
     eliminarDeCompartidos:eliminarDeCompartidos

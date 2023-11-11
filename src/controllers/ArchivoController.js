@@ -279,46 +279,6 @@ const mostarArchivosDeCarpeta = async (req, res) => {
 }
 
 
-const compartirArchivo = async (req, res) => {
-    const _body = req.body;
-
-    //verificamos que el usuario existe
-    if (!UsuarioController.existeUsuario(_body_usuario_receptor)) {
-        res.json({
-            motivo: "El usuario receptor no existe.",
-            respuesta: false//si fue mal entonces devolver false
-        });
-        return;
-    }
-    //crear un nuevo Articulo a partir del body
-    const newCompartido = new Compartido({
-        nombre: _body.nombre,
-        extension: _body.extension,
-        contenido: _body.contenido,
-        usuario_que_compartio: _body.usuario_que_compartio,
-        usuario_receptor: _body_usuario_receptor
-    });
-
-    //mandamos a guardar el nuevo Articulo
-    const insert = await newCompartido.save();
-
-    if (insert) {
-        res.json({
-            motivo: "Se guardo el archivo con exito.",
-            respuesta: true//si fue mal entonces devolver false
-        });
-        return;
-    } else {
-        res.json({
-            motivo: "No se inserto el archivo debido a un error inesperado",
-            respuesta: false//si fue mal entonces devolver false
-        });
-        return;
-    }
-}
-
-
-
 async function verificarSiExisteOtroArchivoConMismoNombre(archivo) {
     try {
         let archivoRepetido = null;
@@ -377,6 +337,5 @@ module.exports = {
     mostarArchivosDeCarpeta: mostarArchivosDeCarpeta,
     moverArchivo: moverArchivo,
     eliminarArchivoFuntion: eliminarArchivoFuntion,
-    compartirArchivo: compartirArchivo,
     traerArchivoPorId: traerArchivoPorId
 }

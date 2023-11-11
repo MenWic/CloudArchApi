@@ -45,7 +45,6 @@ const crearCarpeta = async (req, res) => {
 
 const eliminarCarpeta = async (req, res) => {
     const _body = req.body;
-    console.log(_body)
     let respuesta = await eliminarCarpetaRecursiva(_body);
     res.json({
         respuesta: respuesta//si fue mal entonces devolver false
@@ -134,7 +133,6 @@ const moverCarpeta = async (req, res) => {
         //mientras no se haya recorrido todo el padre
         while (true) {
             if (carpetaDestino._id.toString() === carpeta._id.toString()) {
-                console.log("entro")
                 res.json({
                     motivo: "No puedes mover una carpeta padre hacia su hijo.",
                     respuesta: false//si fue mal entonces devolver false
@@ -242,7 +240,6 @@ async function eliminarCarpetaRecursiva(carpeta) {
         let insertPapelera = await papelera.save();
 
         let carpetasHijas = await Carpeta.find({ carpeta_raiz_id: carpeta._id });
-        console.log("Hijas", carpetasHijas)
         for (let carpetas of carpetasHijas) {
             await eliminarCarpetaRecursiva(carpetas);
         }
