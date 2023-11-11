@@ -78,6 +78,7 @@ const copiarCarpeta = async (req, res) => {
  */
 const moverCarpeta = async (req, res) => {
     const _body = req.body;
+
     if (await verificarSiExisteOtraCarpetaConMismoNombre(_body)) {
         res.json({
             motivo: "Ya existe otra carpeta con el mismo nombre",
@@ -161,7 +162,7 @@ async function eliminarCarpetaRecursiva(carpeta) {
         for (let archivos of archivosHijos) {
             ArchivosController.eliminarArchivoFuntion(archivos, true);
         }
-        
+
         //eliminamos la carpeta y la adjuntamos a la papelera de carpetas
         let eliminacionCarpteta = await Carpeta.deleteOne({ _id: carpeta._id });
         //creamos la nueva papelera de carpeta y la guardamos
@@ -172,9 +173,9 @@ async function eliminarCarpetaRecursiva(carpeta) {
             usuario_propietario: carpeta.usuario_propietario
         });
         let insertPapelera = await papelera.save();
-        
+
         let carpetasHijas = await Carpeta.find({ carpeta_raiz_id: carpeta._id });
-         console.log("Hijas" , carpetasHijas)
+        console.log("Hijas", carpetasHijas)
         for (let carpetas of carpetasHijas) {
             await eliminarCarpetaRecursiva(carpetas);
         }
@@ -218,6 +219,60 @@ const mostarCarpetasDeCarpeta = async (req, res) => {
         res.send([{}]);
     }
 }
+
+const mostrarCarpetasDeUsuario = async (req, res) => {
+    const _body = req.query;
+    const find = await Carpeta.find(
+        {
+            usuario_propietario: _body.usuario_propietario
+        }
+    );
+    if (find) {
+        res.json(find);
+    } else {
+        res.send([{}]);
+    }
+}
+
+const mostrarPathDeCarpeta = async (req, res) => {
+    const _body = req.query;
+
+    if (_body.id === "raiz") {
+        res.json("raiz");
+        return;
+    }
+
+    const find = await Carpeta.findOne(
+        {
+            _id: _body.id
+        }
+    );
+
+    let path = await construirPath(find);
+
+    res.json(path);
+
+}
+
+
+async function construirPath(carpeta) {
+    let padre = carpeta;
+    let path = "";
+
+    if (padre.carpeta_raiz_id === "raiz") {
+        path = padre.nombre;
+    } else {
+        while (padre.carpeta_raiz_id !== "raiz") {
+            padre = await Carpeta.findOne(
+                { _id: padre.carpeta_raiz_id }
+            );
+            path = padre.nombre + "/" + path;
+        }
+    }
+
+    return "raiz/" + path;
+}
+
 
 async function verificarSiExisteOtraCarpetaConMismoNombre(carpeta) {
 
@@ -265,5 +320,7 @@ module.exports = {
     mostarCarpetasDeCarpeta: mostarCarpetasDeCarpeta,
     copiarCarpeta: copiarCarpeta,
     moverCarpeta: moverCarpeta,
-    traerCarpetaPorId: traerCarpetaPorId
+    mostrarCarpetasDeUsuario: mostrarCarpetasDeUsuario,
+    traerCarpetaPorId: traerCarpetaPorId,
+    mostrarPathDeCarpeta: mostrarPathDeCarpeta
 }
