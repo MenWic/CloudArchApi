@@ -1,5 +1,6 @@
 const Carpeta = require('../models/Carpeta');
 const Archivo = require('../models/Archivo');
+const mongoose = require('mongoose');
 const PapeleraCarpeta = require('../models/PapeleraCarpeta');
 const ArchivosController = require('../controllers/ArchivoController')
 
@@ -78,8 +79,19 @@ const copiarCarpeta = async (req, res) => {
  */
 const moverCarpeta = async (req, res) => {
     const _body = req.body;
+    //mandamos a traer la carpeta por su id
+    const carpeta = await traerCarpetaPorIdFunc(_body._id);
 
-    if (await verificarSiExisteOtraCarpetaConMismoNombre(_body)) {
+    //si la carpeta no existe entonces lanzamos error
+    if (!carpeta) {
+        res.json({
+            motivo: "La carpeta que intentas mover no existe",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+
+    if (await verificarSiExisteOtraCarpetaConMismoNombre(carpeta)) {
         res.json({
             motivo: "Ya existe otra carpeta con el mismo nombre",
             respuesta: false//si fue mal entonces devolver false
@@ -87,12 +99,67 @@ const moverCarpeta = async (req, res) => {
         return;
     }
 
+
+    if (_body._id === _body.destino_id) {
+        res.json({
+            motivo: "No puedes mover la carpeta hacia ella misma",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+
+    //si la carpeta se esta moviendo hacia su misma direccion
+    if (_body.destino_id === carpeta.carpeta_raiz_id) {
+        res.json({
+            motivo: "Estas intentando mover la carpeta al mismo lugar en la que se encuentra",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+
+    //si la carpeta destino no es la raiz de lo contrario hacemos el cambio directo
+    if (_body.destino_id !== "raiz") {
+
+        //debemos verificar que la carpeta que se quiere mover no sea padre o ancestra de la carpeta destino
+        //mandamos a traer la info de la carpeta destino
+        let carpetaDestino = await traerCarpetaPorIdFunc(_body.destino_id)
+        //si la destino no existe entonces 
+        if (!carpetaDestino) {
+            res.json({
+                motivo: "La carpeta destino no existe.",
+                respuesta: false//si fue mal entonces devolver false
+            });
+            return;
+        }
+        //mientras no se haya recorrido todo el padre
+        while (true) {
+            if (carpetaDestino._id.toString() === carpeta._id.toString()) {
+                console.log("entro")
+                res.json({
+                    motivo: "No puedes mover una carpeta padre hacia su hijo.",
+                    respuesta: false//si fue mal entonces devolver false
+                });
+                return;
+            } else {
+
+                if (carpetaDestino.carpeta_raiz_id !== "raiz") {
+                    carpetaDestino = await traerCarpetaPorIdFunc(carpetaDestino.carpeta_raiz_id);
+                } else {
+                    break;
+                }
+
+            }
+        }
+
+    }
+
+
     const update = await Carpeta.findByIdAndUpdate(
         {
             _id: _body._id
         },
         {
-            carpeta_raiz_id: _body.carpeta_raiz_id
+            carpeta_raiz_id: _body.destino_id
         }
     );
 
@@ -192,11 +259,7 @@ async function eliminarCarpetaRecursiva(carpeta) {
  */
 const traerCarpetaPorId = async (req, res) => {
     const _body = req.query;
-    const find = await Carpeta.findOne(
-        {
-            _id: _body.id
-        }
-    );
+    const find = await traerCarpetaPorIdFunc(_body.id);
     if (find) {
         res.json(find);
     } else {
@@ -262,6 +325,7 @@ async function construirPath(carpeta) {
     if (padre.carpeta_raiz_id === "raiz") {
         path = padre.nombre;
     } else {
+        path = path + padre.nombre;
         while (padre.carpeta_raiz_id !== "raiz") {
             padre = await Carpeta.findOne(
                 { _id: padre.carpeta_raiz_id }
@@ -270,7 +334,7 @@ async function construirPath(carpeta) {
         }
     }
 
-    return "raiz/" + path;
+    return "raiz/" + path + "/";
 }
 
 
@@ -301,6 +365,15 @@ async function verificarSiExisteOtraCarpetaConMismoNombre(carpeta) {
         console.error(error);
         return false; // Manejar el error según sea necesario
     }
+}
+
+async function traerCarpetaPorIdFunc(id) {
+    const find = await Carpeta.findOne(
+        {
+            _id: id
+        }
+    );
+    return find;
 }
 
 function verificarCarpeta(archivo) {
