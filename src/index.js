@@ -4,6 +4,7 @@ const usuarioRoutes = require('./routes/Usuario.routes');
 const archivoRoutes = require('./routes/Archivo.routes');
 const carpetaRoutes = require('./routes/Carpeta.routes');
 const papeleraRoutes = require('./routes/Papelera.routes');
+const papeleraCarpetaRoutes = require('./routes/PapeleraCarpeta.routes');
 const compartidosRoutes = require('./routes/Compartidos.routes');
 
 const cors = require("cors");
@@ -42,5 +43,6 @@ app.use('/archivos', archivoRoutes);
 app.use('/carpetas', carpetaRoutes);
 app.use('/papelera', papeleraRoutes);
 app.use('/compartidos', compartidosRoutes);
+app.use('/papeleraCarpetas', papeleraCarpetaRoutes);
 app.listen(3000);//exuchando por el pueto 3000
 

@@ -101,25 +101,32 @@ const eliminarArchivo = async (req, res) => {
         });
         return;
     }
-    let jsonEliminacion = await eliminarArchivoFuntion(_body);
+    let jsonEliminacion = await eliminarArchivoFuntion(_body, false);
     res.json(jsonEliminacion);
 }
 
-async function eliminarArchivoFuntion(archivo) {
+async function eliminarArchivoFuntion(archivo, borrandoCarpeta) {
     const eliminacion = await Archivo.deleteOne(
         {
             _id: archivo._id
         }
     )
 
+ 
+   
     //crear una nueva papelera a partir del body
     const newPapelera = new Papelera({
+        _id: archivo._id,
         carpeta_raiz_id: archivo.carpeta_raiz_id,
         nombre: archivo.nombre,
         extension: archivo.extension,
         contenido: archivo.contenido,
         usuario_propietario: archivo.usuario_propietario
     });
+
+    if(!borrandoCarpeta){
+        newPapelera.carpeta_raiz_id = "raiz"
+    }
 
     const save_papelera = await newPapelera.save();
 

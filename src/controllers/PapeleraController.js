@@ -1,19 +1,18 @@
 const Papelera = require('../models/Papelera');
 
-/**
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
-const verPapelera = async (req, res) => {
-    const papelera = await Papelera.find();
+const mostarArchivosDeCarpeta = async (req, res) => {
+    const _body = req.query;
+    const find = await Papelera.find(
+        {
+            carpeta_raiz_id: _body._id,
+            usuario_propietario: _body.usuario_propietario
+        }
+    );
 
-    if (papelera) {
-        res.json(papelera);
-        return;
+    if (find) {
+        res.json(find);
     } else {
-        res.json([]);
-        return;
+        res.send([{}]);
     }
 }
 
@@ -24,19 +23,24 @@ const verPapelera = async (req, res) => {
  */
 const traerArchivoPorId = async (req, res) => {
     const _body = req.query;
-    const find = await Papelera.findOne(
-        {
-            _id: _body.id,
-        }
-    );
+    try {
+        const find = await Papelera.findOne(
+            {
+                _id: _body.id,
+            }
+        );
 
-    if (find) {
-        res.json(find);
-    } else {
-        res.send([{}]);
+        if (find) {
+            res.json(find);
+        } else {
+            res.send({});
+        }
+    } catch (error) {
     }
+
 }
+
 module.exports = {
-    verPapelera: verPapelera,
+    mostarArchivosDeCarpeta: mostarArchivosDeCarpeta,
     traerArchivoPorId: traerArchivoPorId
 }
