@@ -24,7 +24,6 @@ const mostarCarpetasDeCarpeta = async (req, res) => {
     const find = await PapeleraCarpeta.find(
         {
             carpeta_raiz_id: _body._id,
-            usuario_propietario: _body.usuario_propietario
         }
     );
     if (find) {
