@@ -112,8 +112,8 @@ async function eliminarArchivoFuntion(archivo, borrandoCarpeta) {
         }
     )
 
- 
-   
+
+
     //crear una nueva papelera a partir del body
     const newPapelera = new Papelera({
         _id: archivo._id,
@@ -124,7 +124,7 @@ async function eliminarArchivoFuntion(archivo, borrandoCarpeta) {
         usuario_propietario: archivo.usuario_propietario
     });
 
-    if(!borrandoCarpeta){
+    if (!borrandoCarpeta) {
         newPapelera.carpeta_raiz_id = "raiz"
     }
 
@@ -197,17 +197,21 @@ const editarArchivo = async (req, res) => {
  */
 const moverArchivo = async (req, res) => {
     const _body = req.body;
-    if (!verificarArchivo(_body)) {
+
+    const archivo = await traerArchivoPorIdFunc(_body.id);;
+
+    //si la carpeta no existe entonces lanzamos error
+    if (!archivo) {
         res.json({
-            motivo: "No se edito el archivo puesto que hay informacion incompleta o extension erronea.",
+            motivo: "El archivo que intentas mover no existe",
             respuesta: false//si fue mal entonces devolver false
         });
         return;
     }
 
-    if (await verificarSiExisteOtroArchivoConMismoNombre(_body)) {
+    if (await verificarSiExisteOtroArchivoConMismoNombre(archivo)) {
         res.json({
-            motivo: "Ya existe un archivo con el mismo nombre",
+            motivo: "Ya existe un archivo con el mismo nombre en el directorio.",
             respuesta: false//si fue mal entonces devolver false
         });
         return;
@@ -219,7 +223,7 @@ const moverArchivo = async (req, res) => {
             _id: _body._id
         },
         {
-            carpeta_raiz_id: _body.carpeta_raiz_id
+            carpeta_raiz_id: _body.destino_id
         });
 
     if (update) {
@@ -244,21 +248,21 @@ const moverArchivo = async (req, res) => {
  */
 const traerArchivoPorId = async (req, res) => {
     const _body = req.query;
-    try {
-        const find = await Archivo.findOne(
-            {
-                _id: _body.id,
-            }
-        );
-
-        if (find) {
-            res.json(find);
-        } else {
-            res.send(null);
-        }
-    } catch (error) {
+    const find = await traerArchivoPorIdFunc(_body.id);
+    if (find) {
+        res.json(find);
+    } else {
+        res.send(null);
     }
+}
 
+async function traerArchivoPorIdFunc(id) {
+    const find = await Archivo.findOne(
+        {
+            _id: id,
+        }
+    );
+    return find;
 }
 
 
