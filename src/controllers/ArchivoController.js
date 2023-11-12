@@ -259,7 +259,7 @@ const traerArchivoPorId = async (req, res) => {
 async function traerArchivoPorIdFunc(id) {
     const find = await Archivo.findOne(
         {
-            _id: id,
+            _id: id
         }
     );
     return find;
