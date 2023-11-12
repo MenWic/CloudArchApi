@@ -127,5 +127,6 @@ module.exports = {
     login: login,
     crearUsuario: crearUsuario,
     existeUsuario: existeUsuario,
-    buscarUsuarioPorNombre: buscarUsuarioPorNombre
+    buscarUsuarioPorNombre: buscarUsuarioPorNombre,
+    editarUsuario:editarUsuario
 }

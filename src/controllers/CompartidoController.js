@@ -4,6 +4,15 @@ const UsuarioController = require('../controllers/UsuarioController');
 const compartirArchivo = async (req, res) => {
     const _body = req.body;
 
+    if (_body.usuario_que_compartio
+        === _body.usuario_receptor) {
+        res.json({
+            motivo: "No puedes compartirte un archivo a ti mismo.",
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+
     //verificamos que el usuario existe
     if (!await UsuarioController.existeUsuario(_body.usuario_receptor)) {
         res.json({
@@ -46,7 +55,7 @@ const compartirArchivo = async (req, res) => {
  * @returns 
  */
 const verCompartidosDeUsuario = async (req, res) => {
-    
+
     const _body = req.query;
 
     const compartidosDeUsuario = await Compartido.find(
@@ -105,8 +114,8 @@ const eliminarDeCompartidos = async (req, res) => {
 }
 
 module.exports = {
-    compartirArchivo:compartirArchivo,
+    compartirArchivo: compartirArchivo,
     verCompartidosDeUsuario: verCompartidosDeUsuario,
     traerCompartidoPorId: traerCompartidoPorId,
-    eliminarDeCompartidos:eliminarDeCompartidos
+    eliminarDeCompartidos: eliminarDeCompartidos
 }
