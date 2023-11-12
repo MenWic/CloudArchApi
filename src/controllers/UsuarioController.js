@@ -49,13 +49,47 @@ const crearUsuario = async (req, res) => {
     }
 }
 
+const editarUsuario = async (req, res) => {
+    //vemos si los parametros son nulos
+    if (!verificarUsuario(req.body.correoElectronico, req.body.password)) {
+        res.json({
+            respuesta: false//si fue mal entonces devolver false
+        });
+        return;
+    }
+    req.body.password = createHash.createHash('sha256').update(req.body.password).digest('hex');//seteamos la contra como una encriptada
+    try {
+        const insercion = await Usuario.findByIdAndUpdate(
+            {
+                _id: req.body._id
+            },
+            {
+                password: req.body.password
+            }
+        );//mandamos a guardar al usuario en la db
+        if (insercion) {//si todo fue bien tonces revolvemos true
+            res.json({
+                respuesta: true
+            });
+        } else {
+            res.json({
+                respuesta: false//si fue mal entonces devolver false
+            });
+        }
+    } catch (MongoBulkWriteError) {
+        res.json({
+            respuesta: false//si fue mal entonces devolver false
+        });
+    }
+}
+
 /**
  * Busca al usuario por medio del atributo nombreUsuario de la llamada get
  */
 const buscarUsuarioPorNombre = async (req, res) => {
     const _body = req.query;
     const usuarioEncontrado = await Usuario.findOne(
-        { correoElectronico: _body.nombreUsuario}
+        { correoElectronico: _body.nombreUsuario }
     );
 
     if (usuarioEncontrado) {
@@ -93,5 +127,5 @@ module.exports = {
     login: login,
     crearUsuario: crearUsuario,
     existeUsuario: existeUsuario,
-    buscarUsuarioPorNombre:buscarUsuarioPorNombre
+    buscarUsuarioPorNombre: buscarUsuarioPorNombre
 }
