@@ -198,7 +198,7 @@ const editarArchivo = async (req, res) => {
 const moverArchivo = async (req, res) => {
     const _body = req.body;
 
-    const archivo = await traerArchivoPorIdFunc(_body.id);;
+    const archivo = await traerArchivoPorIdFunc(_body._id);;
 
     //si la carpeta no existe entonces lanzamos error
     if (!archivo) {
