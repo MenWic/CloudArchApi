@@ -59,9 +59,12 @@ const editarUsuario = async (req, res) => {
     }
     req.body.password = createHash.createHash('sha256').update(req.body.password).digest('hex');//seteamos la contra como una encriptada
     try {
+        const find = await Usuario.findOne({
+            correoElectronico: req.body.correoElectronico
+        });
         const insercion = await Usuario.findByIdAndUpdate(
             {
-                _id: req.body._id
+                _id: find._id
             },
             {
                 password: req.body.password
