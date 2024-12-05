@@ -1,4 +1,4 @@
-const express = require('express');//iniciar express
+const express = require('express'); //iniciar express
 const mongoose = require('mongoose');//iniciar mongoose
 const usuarioRoutes = require('./routes/Usuario.routes');
 const archivoRoutes = require('./routes/Archivo.routes');
@@ -34,7 +34,8 @@ async function start() {
 
         console.log("Nos conectamos", db.connection.name);//mensaje de confirmacion
     } catch (error) {
-        console.log("Nos nos conectamos");//mensaje de error
+        console.log(error);
+        console.log("No nos conectamos");//mensaje de error
     }
 }
 start();//llamamos la funcion
